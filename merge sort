@@ -1,0 +1,107 @@
+#include <stdio.h>
+#include <time.h>
+#include <stdlib.h>
+
+void split(int[], int, int);
+void combine(int[], int, int, int);
+void manualEntry();
+void benchmarkSort();
+void exitProgram();
+
+int main() {
+    int choice;
+    
+    while (1) {
+        printf("\n1: For manual entry of N value and array elements");
+        printf("\n2: To display time taken for sorting number of elements N in the range 500 to 14500");
+        printf("\n3: To exit");
+        printf("\nEnter your choice: ");
+        scanf("%d", &choice);
+        
+        if (choice == 1) {
+            manualEntry();
+        } else if (choice == 2) {
+            benchmarkSort();
+        } else if (choice == 3) {
+            exitProgram();
+        } else {
+            printf("Invalid choice. Please try again.\n");
+        }
+    }
+    return 0;
+}
+
+void manualEntry() {
+    int a[15000], n, i;
+    clock_t start, end;
+
+    printf("\nEnter the number of elements: ");
+    scanf("%d", &n);
+    printf("\nEnter array elements: ");
+    for (i = 0; i < n; i++) {
+        scanf("%d", &a[i]);
+    }
+    start = clock();
+    split(a, 0, n - 1);
+    end = clock();
+    printf("\nSorted array is: ");
+    for (i = 0; i < n; i++) {
+        printf("%d\t", a[i]);
+    }
+    printf("\nTime taken to sort %d numbers is %f Secs", n, ((double)(end - start)) / CLOCKS_PER_SEC);
+}
+
+void benchmarkSort() {
+    int a[15000], n, i;
+    clock_t start, end;
+
+    n = 500;
+    while (n <= 14500) {
+        for (i = 0; i < n; i++) {
+            a[i] = n - i;  // Generate reverse sorted array
+        }
+        start = clock();
+        split(a, 0, n - 1);
+        end = clock();
+        printf("\nTime taken to sort %d numbers is %f Secs", n, ((double)(end - start)) / CLOCKS_PER_SEC);
+        n += 1000;
+    }
+}
+
+void exitProgram() {
+    exit(0);
+}
+
+void split(int a[], int low, int high) {
+    if (low < high) {
+        int mid = (low + high) / 2;
+        split(a, low, mid);
+        split(a, mid + 1, high);
+        combine(a, low, mid, high);
+    }
+}
+
+void combine(int a[], int low, int mid, int high) {
+    int b[15000];  // Temporary array
+    int i = low, j = mid + 1, k = low;
+
+    while (i <= mid && j <= high) {
+        if (a[i] < a[j]) {
+            b[k++] = a[i++];
+        } else {
+            b[k++] = a[j++];
+        }
+    }
+    
+    while (i <= mid) {  // Copy remaining elements from left half
+        b[k++] = a[i++];
+    }
+
+    while (j <= high) {  // Copy remaining elements from right half
+        b[k++] = a[j++];
+    }
+
+    for (i = low; i <= high; i++) {  // Copy sorted elements back to original array
+        a[i] = b[i];
+    }
+}
